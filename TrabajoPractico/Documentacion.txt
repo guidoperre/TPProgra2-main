@@ -1,0 +1,21 @@
+Programa de turnos para farmacia Farmapolis.
+
+La ejecución está en la clase "Ejecucion" del paquete "Usuario".
+
+En el paquete "apis" se define la interfaz del TDA "AdministradorColasTDA".
+
+En el paquete "implementacion" se implementa el TDA y la clase Farmacia.
+
+En el paquete "metodos" se definen varios métodos de biblioteca para trabajar con los TDA del JAR de la materia.
+
+En el paquete "test" están las siguientes clases:
+
+  - "TestAdministradorCola": batería de pruebas automatizadas para el TDA implementado
+  - "TestFarmacia": prueba con 6 puestos de atención y 40 turnos de distinto tipo, según los solicitado en la consigna del TPO.
+  - "Utils": métodos utilitarios para las pruebas automátizadas.
+
+En el archivo "Reporte de prueba.txt" hay un ejemplo del reporte generado con 40 turnos de distinto tipo y 6 puestos de atención.
+
+Si al correr el programa en Eclipse, este tira un error como: "Exception in thread "some class" java.lang.UnsupportedClassVersionError: /path has been compiled by a more recent version of the 
+Java Runtime (class file version v.x), this version of the Java Runtime only recognizes class file versions up to v.x", hay que ir a las propiedades del proyecto - Java Compiler y habilitar 
+"Enable project specific settings" y "Use default compliance settings".
