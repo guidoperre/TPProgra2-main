@@ -9,11 +9,11 @@ import static java.util.Map.entry;
 
 public class Ejecucion {
 
-    private static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
 
     // @formatter:off
     // Diccionario de tipos de turno
-    private static Map<String, String> tiposTurnos = Map.ofEntries(
+    private static final Map<String, String> tiposTurnos = Map.ofEntries(
         entry("O",   "Obra social (demora estimada 30')"),
         entry("P",   "Particular (demora estimada 20')"),
         entry("P1",  "PAMI 1 receta (demora estimada 10')"),
@@ -22,11 +22,11 @@ public class Ejecucion {
     );
 
     // Array de códigos de turno
-    private static String[] codigosTurnos = new String[]{"O", "P", "P1", "P3", "P+3"};
+    private static final String[] codigosTurnos = new String[]{"O", "P", "P1", "P3", "P+3"};
     // @formatter:on
 
     public static void main(String[] args) {
-        imprimirLogo();
+        System.out.println("+++ ---> +++ ---> Turnos para Farmatown <--- +++ <--- +++\n");
 
         int cantPuestos = leerCantPuestos();
 
@@ -37,7 +37,7 @@ public class Ejecucion {
         while (!valorIngresado.equals("S")) {
             int ticket = farmacia.agregarTurno(valorIngresado);
             System.out.println("Se entregó el turno " + ticket + " de tipo " + tiposTurnos.get(valorIngresado));
-            System.out.println("");
+            System.out.println();
             valorIngresado = leerTurno();
         }
 
@@ -46,7 +46,7 @@ public class Ejecucion {
         System.out.print("¿Ejecutar la simulación? (S/N): ");
         valorIngresado = scanner.nextLine();
 
-        if (valorIngresado.toLowerCase().equals("s")) {
+        if (valorIngresado.equalsIgnoreCase("s")) {
             farmacia.simular();
         }
 
@@ -81,8 +81,8 @@ public class Ejecucion {
         // Solicita y valida el ingreso de un nuevo turno
 
         // Impresión del menú de opciones
-        for (int i = 0; i < codigosTurnos.length; i++) {
-            System.out.println(codigosTurnos[i] + ": " + tiposTurnos.get(codigosTurnos[i]));
+        for (String codigosTurno : codigosTurnos) {
+            System.out.println(codigosTurno + ": " + tiposTurnos.get(codigosTurno));
         }
         System.out.println("S: Finalizar e imprimir reporte");
 
@@ -100,16 +100,5 @@ public class Ejecucion {
             }
         }
         return valorIngresado;
-    }
-
-    public static void imprimirLogo() {
-        // Imprime el logo del sistema
-        System.out.println("   ____                    ___       ___   ");
-        System.out.println("  / __/__ _______ _  ___ _/ _ \\___  / (_)__");
-        System.out.println(" / _// _ `/ __/  ' \\/ _ `/ ___/ _ \\/ / (_-<");
-        System.out.println("/_/  \\_,_/_/ /_/_/_/\\_,_/_/   \\___/_/_/___/");
-        System.out.println("Sistema de gestión de turnos");
-        System.out.println("");
-
     }
 }
