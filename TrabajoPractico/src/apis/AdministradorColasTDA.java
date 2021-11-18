@@ -2,27 +2,23 @@ package apis;
 
 public interface AdministradorColasTDA {
 
-    // Inicializa el administrador de colas para una cantidad de puestos dada
-    void inicializar(int cantPuestos);
+    void inicializar(int cantidad);
 
-    // Agrega un item a la cola con menos demora estimada, devuelve un identificador
-    // único para el ítem
-    public abstract int acolar(int tiempoEstimado);
+    ColaPrioridadTDA programacion();
 
-    public abstract void desacolar();
+    int acolar(int tiempoEstimado);
 
-    public abstract ColaPrioridadTDA programacion();
+    void desacolar();
 
-    public abstract int cantColas();
+    int primero();
 
-    public abstract int primero();
+    int estimado();
 
-    public abstract int estimado();
+    int cantidadColas();
 
-    public abstract int puestoProximoElem();
+    int getPuestoProximoElemento();
 
-    public abstract int puestoDelElem(int idElemento);
+    int getPuestoElemento(int id);
 
-    public abstract DiccionarioSimpleTDA elementos();
-
+    DiccionarioSimpleTDA getElementos();
 }

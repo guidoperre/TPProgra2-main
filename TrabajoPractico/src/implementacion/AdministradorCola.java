@@ -11,183 +11,153 @@ import impl.DicSimpleL;
 import metodos.Lib;
 
 public class AdministradorCola implements AdministradorColasTDA {
-    int cantPuestos;
-    int lastID;
-    DiccionarioSimpleTDA demorasPorPuesto;
-    DiccionarioSimpleTDA demorasPorItem;
-    DiccionarioSimpleTDA puestoPorItem;
 
-    ColaTDA colas[];
+    DiccionarioSimpleTDA demoraPuesto;
+    DiccionarioSimpleTDA demoraItem;
+    DiccionarioSimpleTDA puesto;
 
-    // Índice del round-robin para desacolar
-    int siguienteCola;
+    ColaTDA[] colas;
 
-    // Inicializa el administrador de colas para una cantidad de puestos dada
-    public void inicializar(int cantPuestos) {
-        this.cantPuestos = cantPuestos;
-        lastID = 0;
+    int proximaCola;
+    int cantidadPuestos;
+    int ultimoId;
 
-        colas = new ColaTDA[cantPuestos];
+    public void inicializar(int cantidadPuestos) {
+        demoraPuesto = new DicSimpleL();
+        demoraPuesto.inicializarDiccionario();
 
-        demorasPorPuesto = new DicSimpleL();
-        demorasPorPuesto.inicializarDiccionario();
+        demoraItem = new DicSimpleL();
+        demoraItem.inicializarDiccionario();
 
-        // Internamente los puestos van de 0 a n-1
-        for (int i = 0; i < cantPuestos; i++) {
-            demorasPorPuesto.agregar(i, 0);
+        puesto = new DicSimpleL();
+        puesto.inicializarDiccionario();
+
+        ultimoId = 0;
+        proximaCola = 0;
+        colas = new ColaTDA[cantidadPuestos];
+        this.cantidadPuestos = cantidadPuestos;
+
+        for (int i=0; i<cantidadPuestos; i++) {
+            demoraPuesto.agregar(i, 0);
             colas[i] = new ColaLD();
             colas[i].inicializarCola();
         }
-
-        siguienteCola = 0;
-
-        demorasPorItem = new DicSimpleL();
-        demorasPorItem.inicializarDiccionario();
-
-        puestoPorItem = new DicSimpleL();
-        puestoPorItem.inicializarDiccionario();
     }
 
-    // Devuelve el ID del puesto con menor demora
-    private int hallarColaMenorDemora() {
-        int minValor = demorasPorPuesto.recuperar(0);
-        int minID = 0;
-        for (int i = 1; i < cantPuestos; i++) {
-            int valor = demorasPorPuesto.recuperar(i);
-            if (valor < minValor) {
-                minValor = valor;
-                minID = i;
+    public ColaPrioridadTDA programacion() {
+        ColaPrioridadTDA p = new ColaPrioridadLD();
+        p.inicializarCola();
+        ColaTDA aux;
+        int item;
+        int demoraTotal;
+        int demoraAux;
+
+        for (int i=0; i<cantidadPuestos; i++) {
+            aux = new ColaLD();
+            aux.inicializarCola();
+            demoraTotal = 0;
+            demoraAux = 0;
+
+            Lib.copiar(colas[i], aux);
+            while (!aux.colaVacia()) {
+                item = aux.primero();
+                demoraTotal += demoraAux;
+                p.acolarPrioridad(item, -demoraTotal);
+
+                demoraAux = demoraItem.recuperar(item);
+                aux.desacolar();
             }
         }
-
-        return minID;
+        return p;
     }
 
-    // Agrega un item a la cola con menos demora estimada, devuelve un identificador
-    // único para el ítem
     public int acolar(int estimado) {
-        int cola = hallarColaMenorDemora();
-        int nuevoEstimado = demorasPorPuesto.recuperar(cola) + estimado;
-        demorasPorPuesto.agregar(cola, nuevoEstimado);
+        int cola = buscarColaMenorDemora();
+        int aux = demoraPuesto.recuperar(cola) + estimado;
+        demoraPuesto.agregar(cola, aux);
 
-        int id = ++lastID;
+        int id = ++ultimoId;
 
         colas[cola].acolar(id);
-        demorasPorItem.agregar(id, estimado);
-        puestoPorItem.agregar(id, cola);
+        demoraItem.agregar(id, estimado);
+        puesto.agregar(id, cola);
 
         return id;
     }
 
-    // Desacola el próximo elemento a ser atendido
-    // El desacolado es round-robin
     public void desacolar() {
-        int demoraTotal = demorasPorPuesto.recuperar(siguienteCola);
-        int demoraPrimero = demorasPorItem.recuperar(primero());
-        demorasPorPuesto.agregar(siguienteCola, demoraTotal - demoraPrimero);
+        int total = demoraPuesto.recuperar(proximaCola);
+        int primero = demoraItem.recuperar(primero());
+        demoraPuesto.agregar(proximaCola, total - primero);
 
-        colas[siguienteCola].desacolar();
+        colas[proximaCola].desacolar();
+        int aux = (proximaCola + 1) % cantidadPuestos;
 
-        int siguiente = (siguienteCola + 1) % cantPuestos;
-        while (colas[siguiente].colaVacia() && siguiente != siguienteCola) {
-            siguiente = (siguiente + 1) % cantPuestos;
+        while (colas[aux].colaVacia() && aux != proximaCola) {
+            aux = (aux + 1) % cantidadPuestos;
         }
 
-        siguienteCola = siguiente;
+        proximaCola = aux;
     }
 
-    // Devuelve una cola prioridad donde la prioridad es el tiempo estimado de
-    // atención de los elementos a partir de la apertura de los puestos
-    public ColaPrioridadTDA programacion() {
-        ColaPrioridadTDA progra = new ColaPrioridadLD();
-        progra.inicializarCola();
-
-        ColaTDA aux;
-        int demoraAcumulada;
-        int demoraAnterior;
-        int elemActual;
-        for (int i = 0; i < cantPuestos; i++) {
-            aux = new ColaLD();
-            aux.inicializarCola();
-            Lib.copiar(colas[i], aux);
-            demoraAcumulada = 0;
-            demoraAnterior = 0;
-            while (!aux.colaVacia()) {
-                elemActual = aux.primero();
-                demoraAcumulada += demoraAnterior;
-                progra.acolarPrioridad(elemActual, -demoraAcumulada);
-
-                demoraAnterior = demorasPorItem.recuperar(elemActual);
-                aux.desacolar();
-            }
-        }
-        return progra;
-    }
-
-    // Devuelve la cantidad de colas / puestos del administrador
-    public int cantColas() {
-        return cantPuestos;
-    }
-
-    // Devuelve el identificador del próximo elemento a ser atendido
     public int primero() {
-        return colas[siguienteCola].primero();
+        return colas[proximaCola].primero();
     }
 
-    // Devuelve el tiempo estimado en que será llamado el próximo elemento desde la
-    // apertura de los puestos (??)
-    //
-    // Se asume que se espera devolver el tiempo estimado para el próximo item a
-    // agregar, ya que la demora del próximo item "a procesar" según lo que devuelve
-    // el método "primero" siempre sería cero.
     public int estimado() {
-        int cola = hallarColaMenorDemora();
-        return demorasPorPuesto.recuperar(cola);
+        int cola = buscarColaMenorDemora();
+        return demoraPuesto.recuperar(cola);
     }
 
-    // Devuelve el puesto del elemento primero()
-    public int puestoProximoElem() {
-        return puestoDelElem(primero());
+    public int cantidadColas() {
+        return cantidadPuestos;
     }
 
-    // Devuelve el puesto correspondiente a un elemento dado
-    public int puestoDelElem(int idElemento) {
-        return puestoPorItem.recuperar(idElemento) + 1;
+    public int getPuestoProximoElemento() {
+        return getPuestoElemento(primero());
     }
 
-    // Devuelve un diccionario con los elementos encolados y la demora estimada de
-    // atención
-    //
-    // Se asume que se pide la demora total desde la apertura de puestos y no la
-    // demora individual para cada elemento.
-    //
-    // Es decir que si hay 1 solo puesto y se acola id=1 con demora 10 e id=2 con
-    // demora=15, devolverá:
-    // {1: 0, 2: 10}
-    public DiccionarioSimpleTDA elementos() {
-        DiccionarioSimpleTDA elementos = new DicSimpleA();
-        elementos.inicializarDiccionario();
+    public int getPuestoElemento(int idElemento) {
+        return puesto.recuperar(idElemento) + 1;
+    }
 
+    public DiccionarioSimpleTDA getElementos() {
+        DiccionarioSimpleTDA e = new DicSimpleA();
+        e.inicializarDiccionario();
         ColaTDA aux;
-        int demoraAcumulada;
-        int demoraAnterior;
-        int elemActual;
-        for (int i = 0; i < cantPuestos; i++) {
+        int item;
+        int demoraTotal;
+        int demoraAux;
+
+        for (int i=0; i<cantidadPuestos; i++) {
             aux = new ColaLD();
             aux.inicializarCola();
-            Lib.copiar(colas[i], aux);
-            demoraAcumulada = 0;
-            demoraAnterior = 0;
-            while (!aux.colaVacia()) {
-                elemActual = aux.primero();
-                demoraAcumulada += demoraAnterior;
-                elementos.agregar(elemActual, demoraAcumulada);
+            demoraTotal = 0;
+            demoraAux = 0;
 
-                demoraAnterior = demorasPorItem.recuperar(elemActual);
+            Lib.copiar(colas[i], aux);
+            while (!aux.colaVacia()) {
+                item = aux.primero();
+                demoraTotal += demoraAux;
+                e.agregar(item, demoraTotal);
+
+                demoraAux = demoraItem.recuperar(item);
                 aux.desacolar();
             }
         }
+        return e;
+    }
 
-        return elementos;
+    private int buscarColaMenorDemora() {
+        int min = demoraPuesto.recuperar(0);
+        int id = 0;
+        for (int i = 1; i < cantidadPuestos; i++) {
+            int valor = demoraPuesto.recuperar(i);
+            if (valor < min) {
+                min = valor;
+                id = i;
+            }
+        }
+        return id;
     }
 }

@@ -38,7 +38,7 @@ public class Farmacia {
     public void imprimirReporte() {
         // Imprime el reporte de la programación de turnos para la jornada
 
-        DiccionarioSimpleTDA elementos = admin.elementos();
+        DiccionarioSimpleTDA elementos = admin.getElementos();
 
         ColaPrioridadTDA programacion = admin.programacion();
 
@@ -47,7 +47,7 @@ public class Farmacia {
         while (!programacion.colaVacia()) {
             int id = programacion.primero();
             int demora = elementos.recuperar(id);
-            int puesto = admin.puestoDelElem(id);
+            int puesto = admin.getPuestoElemento(id);
 
             int demoraHoras = demora / 60;
             int demoraMinutos = demora % 60;
@@ -60,7 +60,7 @@ public class Farmacia {
     }
 
     public void simular() {
-        DiccionarioSimpleTDA elementos = admin.elementos();
+        DiccionarioSimpleTDA elementos = admin.getElementos();
         ColaPrioridadTDA programacion = admin.programacion();
 
         System.out.println("");
@@ -73,7 +73,7 @@ public class Farmacia {
         while (!programacion.colaVacia()) {
             int id = programacion.primero();
             int demora = elementos.recuperar(id);
-            int puesto = admin.puestoDelElem(id);
+            int puesto = admin.getPuestoElemento(id);
 
             if (tiempo == demora) {
                 if (enEspera) {

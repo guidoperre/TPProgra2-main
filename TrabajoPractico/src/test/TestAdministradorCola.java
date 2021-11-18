@@ -12,10 +12,10 @@ public class TestAdministradorCola {
 
         // Pruebas de inicializar
         adm.inicializar(5);
-        Utils.assertEqual(adm.cantColas(), 5, "5 colas");
+        Utils.assertEqual(adm.cantidadColas(), 5, "5 colas");
 
         adm.inicializar(10);
-        Utils.assertEqual(adm.cantColas(), 10, "10 colas");
+        Utils.assertEqual(adm.cantidadColas(), 10, "10 colas");
 
         adm.inicializar(4);
         Utils.assertEqual(adm.estimado(), 0, "Estimado 0 sin elementos");
@@ -69,32 +69,32 @@ public class TestAdministradorCola {
         // Prueba de puestoDelElem
         adm.inicializar(3);
         elem1 = adm.acolar(3);
-        Utils.assertEqual(adm.puestoDelElem(elem1), 1, "Puesto del primer elemento");
+        Utils.assertEqual(adm.getPuestoElemento(elem1), 1, "Puesto del primer elemento");
 
         elem2 = adm.acolar(2);
-        Utils.assertEqual(adm.puestoDelElem(elem2), 2, "Puesto del segundo elemento");
+        Utils.assertEqual(adm.getPuestoElemento(elem2), 2, "Puesto del segundo elemento");
 
         int elem3 = adm.acolar(3);
-        Utils.assertEqual(adm.puestoDelElem(elem3), 3, "Puesto del tercer elemento");
+        Utils.assertEqual(adm.getPuestoElemento(elem3), 3, "Puesto del tercer elemento");
 
         int elem4 = adm.acolar(3);
-        Utils.assertEqual(adm.puestoDelElem(elem4), 2, "Puesto del cuarto elemento");
+        Utils.assertEqual(adm.getPuestoElemento(elem4), 2, "Puesto del cuarto elemento");
 
         // Prueba de puestoProximoElem
-        Utils.assertEqual(adm.puestoProximoElem(), 1, "Proximo elemento");
+        Utils.assertEqual(adm.getPuestoProximoElemento(), 1, "Proximo elemento");
         adm.desacolar();
 
-        Utils.assertEqual(adm.puestoProximoElem(), 2, "Proximo elemento 2");
+        Utils.assertEqual(adm.getPuestoProximoElemento(), 2, "Proximo elemento 2");
 
         adm.desacolar();
         adm.desacolar();
 
-        Utils.assertEqual(adm.puestoProximoElem(), 2, "Proximo elemento 3");
+        Utils.assertEqual(adm.getPuestoProximoElemento(), 2, "Proximo elemento 3");
 
         // Prueba de elementos
         adm.inicializar(3);
 
-        DiccionarioSimpleTDA elementos = adm.elementos();
+        DiccionarioSimpleTDA elementos = adm.getElementos();
         int cantElementos = Lib.contar(elementos.claves());
         Utils.assertEqual(cantElementos, 0, "Cant. de elementos 0");
 
@@ -102,7 +102,7 @@ public class TestAdministradorCola {
             adm.acolar(i + 1);
         }
 
-        elementos = adm.elementos();
+        elementos = adm.getElementos();
         cantElementos = Lib.contar(elementos.claves());
         Utils.assertEqual(cantElementos, 10, "Cant. de elementos 10");
 
